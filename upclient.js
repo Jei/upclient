@@ -33,7 +33,7 @@ var argv = cli
 
 const uphost = new URL(argv.server);
 
-function parametersfrombits(seed) {
+exports.parametersfrombits = function(seed) {
     var out = sjcl.hash.sha512.hash(seed)
     return {
         'seed': seed,
@@ -41,9 +41,9 @@ function parametersfrombits(seed) {
         'iv': sjcl.bitArray.bitSlice(out, 256, 384),
         'ident': sjcl.bitArray.bitSlice(out, 384, 512)
     }
-}
+};
 
-function parameters(seed) {
+exports.parameters = function(seed) {
     if (typeof seed == 'string') {
         seed = sjcl.codec.base64url.toBits(seed)
     } else {
@@ -52,7 +52,7 @@ function parameters(seed) {
     return parametersfrombits(seed)
 }
 
-function encrypt(file, seed, id) {
+exports.encrypt = function(file, seed, id) {
     var params = parameters(seed)
     var uarr = new Uint8Array(file)
     var before = sjcl.codec.bytes.toBits(uarr)
@@ -118,7 +118,7 @@ function str2ab(str) {
 	return buf;
 }
 
-function doUpload(data, name, type) {
+exports.doUpload = function(data, name, type) {
 	var seed = new Uint8Array(16);
 	seed.set(crypto.randomBytes(seed.length));
 
@@ -181,7 +181,7 @@ function doUpload(data, name, type) {
 	req.end();
 }
 
-function validateMimeType(type, buf, cb) {
+exports.validateMimeType = function(type, buf, cb) {
 	var guess = null;
 	if (argv.binary)
 		guess = "application/octet-stream";
@@ -202,6 +202,7 @@ function validateMimeType(type, buf, cb) {
 	});
 }
 
+/*
 var rndbuf = crypto.prng(1024);
 for (var i = 0; i < 256; i++) {
     sjcl.random.addEntropy(rndbuf.readInt32LE(i*4), 32, "prng");
@@ -226,3 +227,4 @@ if (argv.args.length > 0) {
 		
 	});
 }
+*/
