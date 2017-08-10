@@ -159,26 +159,32 @@ exports.doUpload = function(data, name, type) {
 
 	formdata.pipe(req);
 
-	req.on('error', (err) => {
-        console.error(err);
-	});
+	var prm = new Promise(function(resolve, reject) {
+		req.on('error', (err) => {
+    	    reject(err);
+		});
 
-	req.on('response', function(res) {
-	    res.setEncoding('utf8');
-	    var data_out = '';
-	    res.on('data', function(chunk) {
-		data_out += chunk;
-	    });
-	    res.on('end', function() {
-            data_out = JSON.parse(data_out);
-            var res_url = uphost.origin+"/#"+result.seed;
-            var del_url = uphost.origin+"/del?delkey="+data_out.delkey+"&ident="+result.ident;
-            console.log(res_url);
-            argv.delurl && console.log(del_url);
-	    });
+		req.on('response', function(res) {
+		    res.setEncoding('utf8');
+		    var data_out = '';
+		    res.on('data', function(chunk) {
+				data_out += chunk;
+		    });
+	   		 res.on('end', function() {
+            	data_out = JSON.parse(data_out);
+       	   		var res_url = uphost.origin+"/#"+result.seed;
+       	   		var del_url = uphost.origin+"/del?delkey="+data_out.delkey+"&ident="+result.ident;
+    	        resolve({
+					res_url: res_url,
+					del_url: del_url,
+				});
+		    });
+		});
 	});
 
 	req.end();
+
+	return prm;
 }
 
 exports.validateMimeType = function(type, buf, cb) {
